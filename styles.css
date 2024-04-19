@@ -1,20 +1,109 @@
+/* styles.css */
+
+/* Body styles */
 body {
-    font-family: Arial, sans-serif;
-  }
-  
-  #chat-box {
-    height: 300px;
-    overflow-y: scroll;
-    border: 1px solid #ccc;
-    padding: 10px;
-  }
-  
-  #message-input {
-    width: calc(100% - 70px);
-    margin-right: 10px;
-  }
-  
-  button {
-    padding: 10px;
-  }
-  
+  font-family: Arial, sans-serif;
+  background-color: #f2f2f2;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* Container styles */
+.container {
+  width: 80%;
+  display: flex;
+}
+
+/* Sidebar Styles */
+.sidebar {
+  width: 20%;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+
+/* User list Style */
+.user-list{
+  list-style-type: none;
+  padding: 0;
+
+}
+
+
+/* User item styles */
+.user-item {
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.user-item:hover {
+  background-color: #f0f0f0;
+}
+
+/* Chat container styles */
+.chat-container {
+  width: 80%;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-left: 20px;
+}
+
+/* Chat box styles */
+.chat-box {
+  height: 300px;
+  overflow-y: scroll;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+}
+
+/* Input container styles */
+.input-container {
+  display: flex;
+  align-items: center;
+}
+
+/* Input field styles */
+.input-field {
+  flex: 1;
+  padding: 10px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Send button styles */
+.send-button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.send-button:hover {
+  background-color: #0056b3;
+}
+
+.message-date {
+  font-size: small;
+}
+
+/* Footer styles */
+.footer {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 1px solid #ccc;
+  color: #777;
+}

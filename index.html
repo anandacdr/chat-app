@@ -7,9 +7,27 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div id="chat-box"></div>
-  <input type="text" id="message-input" placeholder="Type your message...">
-  <button onclick="sendMessage()">Send</button>
+  <div class="container">
+
+    <div class="sidebar">
+      <h2>My Contacts</h2>
+      <ul id="user-list" class="user-list">
+        <!-- Contact chahi aafai generate hunx yaha :) -->
+      </ul>
+    </div>
+
+
+    <div class="chat-container">
+      <div id="chat-box" class="chat-box"></div>
+      <div class="input-container">
+        <input type="text" id="sender-name" class="input-field" placeholder="Your Name">
+        <input type="text" id="receiver-name" class="input-field" placeholder="Receiver's Name">
+        <input type="text" id="message-input" class="input-field" placeholder="Type your message...">
+        <button onclick="sendMessage()" class="send-button">Send</button>
+      </div>
+    </div>
+    <footer class="footer">Chat Application &copy; 2024</footer>
+  </div>
 
   <script src="script.js"></script>
 </body>

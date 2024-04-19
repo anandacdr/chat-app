@@ -1,5 +1,13 @@
 {
+  "name": "chat-app",
+  "version": "1.0.0",
+  "description": "It's my first Chat App",
+  "main": "server.js",
+  "scripts": {
+    "start": "node -r esm server.js"
+  },
   "dependencies": {
+    "esm": "^3.2.25",
     "express": "^4.19.2"
   }
 }
