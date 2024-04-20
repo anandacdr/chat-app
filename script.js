@@ -1,123 +1,177 @@
-// Function to fetch list of users from the server
-function fetchUserList() {
-  fetch('/users')
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Failed to fetch user list');
+document.addEventListener("DOMContentLoaded", function () {
+  const usersContainer = document.getElementById("user-list");
+  const chatContainer = document.getElementById("chat-box");
+  let senderName = "";
+  let receiverName = "";
+
+  function fetchUserList() {
+    fetch("/users")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch user list");
+        }
+        return response.json();
+      })
+      .then((users) => {
+        renderUserList(users);
+        loadMessages(); // Call loadMessages after renderUserList
+      })
+      .catch((error) => {
+        console.error("Error fetching user list: ", error);
+      });
+  }
+
+  function updateUsersJson(receiverName) {
+    const usersPath = path.join(__dirname, "users.json");
+    fs.readFile(usersPath, "utf8", (readErr, data) => {
+      if (readErr) {
+        console.error(readErr);
+        return;
       }
-      return response.json();
-    })
-    .then(users => {
-      renderUserList(users);
-    })
-    .catch(error => {
-      console.error('Error fetching user list: ', error);
+      try {
+        let users = JSON.parse(data);
+        if (!users.find((user) => user.name === receiverName)) {
+          users.push({ name: receiverName });
+          fs.writeFile(
+            usersPath,
+            JSON.stringify(users, null, 2),
+            (writeErr) => {
+              if (writeErr) {
+                console.error(writeErr);
+              } else {
+                console.log("Users updated successfully");
+              }
+            }
+          );
+        }
+      } catch (parseErr) {
+        console.error(parseErr);
+      }
     });
-}
+  }
 
-// Render the list of users in the sidebar
-function renderUserList(users) {
-  const userList = document.getElementById('user-list');
-  userList.innerHTML = '';
-  users.forEach(user => {
-    const listItem = document.createElement('li');
-    listItem.textContent = user.name;
-    userList.appendChild(listItem);
-  });
-}
+  function renderUserList(users) {
+    usersContainer.innerHTML = "";
+    users.forEach((user) => {
+      const listItem = document.createElement("li");
+      listItem.textContent = user.name;
+      // Add data attributes for sender and receiver
+      listItem.setAttribute("data-sender", senderName);
+      listItem.setAttribute("data-receiver", user.name);
+      listItem.addEventListener("click", () => {
+        receiverName = user.name;
+        document.getElementById("receiver-name").value = receiverName;
+        loadMessages(); // Load messages for the selected receiver
+      });
+      usersContainer.appendChild(listItem);
+    });
+  }
 
-// Call fetchUserList when the page loads
-document.addEventListener('DOMContentLoaded', fetchUserList);
+  fetchUserList();
 
-// Function to render messages in the chat box
-function renderMessages(messages) {
-  const chatBox = document.getElementById('chat-box');
-  chatBox.innerHTML = '';
-  messages.forEach(message => {
-    const div = document.createElement('div');
-    div.classList.add('chat-message');
-    if (message.sender === senderName) {
-      div.classList.add('sender-message');
+  function renderMessages(messages) {
+    chatContainer.innerHTML = "";
+    messages.forEach((message) => {
+      const div = document.createElement("div");
+      div.classList.add("chat-message");
+      if (message.sender === senderName) {
+        div.classList.add("sender-message");
+      } else {
+        div.classList.add("receiver-message");
+      }
+      div.innerHTML = `
+        <span class="sender-name">${message.sender}:</span>
+        <span class="message-text">${message.text}</span>
+        <span class="message-date">${formatDate(message.date)}</span>
+      `;
+      chatContainer.appendChild(div);
+    });
+  }
+
+  function sendMessage() {
+    senderName = document.getElementById("sender-name").value.trim();
+    receiverName = document.getElementById("receiver-name").value.trim();
+    const inputField = document.getElementById("message-input");
+    const messageText = inputField.value.trim();
+    if (messageText !== "" && senderName !== "" && receiverName !== "") {
+      const message = {
+        sender: senderName,
+        receiver: receiverName,
+        text: messageText,
+        date: new Date().toISOString(),
+      };
+      console.log("Sending message:", message);
+      saveMessage(message);
+      inputField.value = "";
+      document.getElementById("receiver-name").value = "";
     } else {
-      div.classList.add('receiver-message');
+      console.log("Message, sender name, or receiver name is empty");
     }
-    div.innerHTML = `
-      <span class="sender-name">${message.sender}:</span>
-      <span class="message-text">${message.text}</span>
-      <span class="message-date">${formatDate(message.date)}</span>
-    `;
-    chatBox.appendChild(div);
-  });
-}
+  }
 
-// Function to send a message
-function sendMessage() {
-  const senderName = document.getElementById('sender-name').value.trim();
-  const receiverName = document.getElementById('receiver-name').value.trim();
-  const inputField = document.getElementById('message-input');
-  const messageText = inputField.value.trim();
-  if (messageText !== '' && senderName !== '' && receiverName !== '') {
-    const message = {
-      sender: senderName,
-      receiver: receiverName,
-      text: messageText,
-      date: new Date().toISOString(),
+  function saveMessage(message) {
+    fetch("/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(message),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((messages) => {
+        renderMessages(messages);
+      })
+      .catch((error) => {
+        console.error("Error sending message:", error);
+        // Optionally, you can inform the user about the error here
+      });
+  }
+
+  document.getElementById("send-button").addEventListener("click", sendMessage);
+  
+
+  function loadMessages() {
+    fetch(`/messages?receiver=${receiverName}`) // Fetch messages for the selected receiver
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((messages) => {
+        renderMessages(messages);
+      })
+      .catch((error) => {
+        console.error("Error loading messages:", error);
+      });
+  }
+
+  function formatDate(dateString) {
+    const options = {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
     };
-    saveMessage(message);
-    inputField.value = '';
-    // Clear the receiver input field
-    document.getElementById('receiver-name').value = '';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return "Invalid Date";
+    }
+    return date.toLocaleDateString(undefined, options);
   }
-}
 
-// Function to save a message
-function saveMessage(message) {
-  fetch('/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(message),
-  })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
+  document.getElementById("send-button").addEventListener("click", sendMessage);
+  document
+    .getElementById("message-input")
+    .addEventListener("keypress", function (event) {
+      if (event.key === "Enter") {
+        sendMessage();
       }
-      return response.json();
-    })
-    .then(messages => {
-      renderMessages(messages);
-    })
-    .catch(error => {
-      console.error('Error sending message:', error);
     });
-}
-
-// Function to load messages
-function loadMessages() {
-  fetch('/messages')
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
-    })
-    .then(messages => {
-      renderMessages(messages);
-    })
-    .catch(error => {
-      console.error('Error loading messages:', error);
-    });
-}
-
-// Function to format date
-function formatDate(dateString) {
-  const options = { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' };
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) {
-    return 'Invalid Date';
-  }
-  return date.toLocaleDateString(undefined, options);
-}
-
-loadMessages();
+});

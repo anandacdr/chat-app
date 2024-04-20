@@ -102,8 +102,10 @@ body {
 /* Footer styles */
 .footer {
   text-align: center;
-  margin-top: 20px;
-  padding-top: 10px;
-  border-top: 1px solid #ccc;
-  color: #777;
+  padding: 10px;
+  background-color: #f8f9fa;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
 }

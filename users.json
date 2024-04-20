@@ -1,1 +1,19 @@
-[]
+[
+    {
+      "name":"Doremon",
+      "sender": "",
+      "receiver": "Dora"
+    },
+    {   
+
+      "name":"Pikachu",
+      "sender": "",
+      "receiver": ""
+    },
+    {
+      "name": "Ananda",
+      "sender": "",
+      "receiver": ""
+    }
+  ]
+  
